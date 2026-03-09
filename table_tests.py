@@ -17,13 +17,18 @@ import csv
 
 listedValues = ["Tool", "Quantity", "Condition", "Tag", "Location"]
 
-class MainWindow(QWidget):
+class MyTableWidget(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.items = []
+        self.headers = []
 
         self.loadCSV("sampleData.csv")
+
+        print(self.headers)
+        rows = len(self.items)
+        col = len(self.items[0])
         
         # print(self.items)
 
@@ -38,40 +43,33 @@ class MainWindow(QWidget):
         #create the table
         self.table = QTableWidget(self)
         
-        print(f"Item count is: {len(self.items)}")
-        print(f"Column count is: {len(self.items[0])}")
+        print(f"Item count is: {rows}")
+        print(f"Column count is: {col}")
 
-        self.table.setRowCount(len(self.items))
-        self.table.setColumnCount(len(self.items[0]))
+        self.table.setRowCount(rows)
+        self.table.setColumnCount(col)
         
-        self.table.setHorizontalHeaderLabels(
-            ["Tool", "Quantity", "Condition", "Tag", "Location"]
-            )
+        self.table.setHorizontalHeaderLabels(self.headers)
         toolValues = [None, None, None, None, None]
 
+
         for i, (tool, quantity, condition, tag, location) in enumerate(self.items):
+        #grabs item no, and all quantities for that row
             listedValues = (tool, quantity, condition, tag, location)
-            for t in range(0,5):
+            #places it in a list
+            for t in range(0,col):
                 toolValues[t] = QTableWidgetItem(listedValues[t])
+                #creates an item of each thing from said list
 
-            """ tool_name = QTableWidgetItem(tool)
-            tool_quantity = QTableWidgetItem(quantity)
-            tool_condition = QTableWidgetItem(condition)
-            tool_tag = QTableWidgetItem(tag)
-            tool_location = QTableWidgetItem(location)
-
-            self.table.setItem(i, 0, tool_name)
-            self.table.setItem(i, 1, tool_quantity)
-            self.table.setItem(i, 2, tool_condition)
-            self.table.setItem(i, 3, tool_tag)
-            self.table.setItem(i, 4, tool_location) """
-
-            for z in range(0,5):
+            for z in range(0,col):
                 self.table.setItem(i, z, toolValues[z])
+                #then sets that item in the table
         
+        #resize to content
         self.table.resizeColumnsToContents()
         self.table.resizeRowsToContents()
 
+        #add table to layout
         layout.addWidget(self.table)
 
         print("table visible?", self.table.isVisible())
@@ -86,8 +84,13 @@ class MainWindow(QWidget):
         print("clicked!")
     
     def loadCSV(self, fileName):
+        t = 0
         with open(fileName, "r") as fileInput:
             for row in csv.reader(fileInput):
+                if t == 0:
+                    self.headers = row
+                    t += 1
+                    continue
                 self.items.append(list(row))
 
 if __name__ == '__main__':
