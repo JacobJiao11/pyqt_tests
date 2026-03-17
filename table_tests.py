@@ -5,17 +5,20 @@ from PyQt6.QtWidgets import (
     QApplication, 
     QWidget, 
     QLabel, 
-    QVBoxLayout, 
+    QVBoxLayout,
+    QHBoxLayout, 
     QPushButton,
     QLineEdit,
     QTableWidget,
     QTableWidgetItem,
-    QMainWindow
+    QMainWindow,
+    QAbstractItemView,
+    QMessageBox
 )
 
-import csv
 
-listedValues = ["Tool", "Quantity", "Condition", "Tag", "Location"]
+
+import csv
 
 class MyTableWidget(QWidget):
     def __init__(self, *args, **kwargs):
@@ -24,11 +27,14 @@ class MyTableWidget(QWidget):
         self.items = []
         self.headers = []
 
+        #create the table
+        self.table = QTableWidget(self)
+
         self.loadCSV("sampleData.csv")
 
-        print(self.headers)
+        # print(self.headers)
         rows = len(self.items)
-        col = len(self.items[0])
+        col = len(self.headers)
         
         # print(self.items)
 
@@ -37,11 +43,8 @@ class MyTableWidget(QWidget):
         self.setGeometry(100, 100, 640, 420)    #set window size
 
         #set the layout
-        layout = QVBoxLayout(self)
-        self.setLayout(layout)
-        
-        #create the table
-        self.table = QTableWidget(self)
+        mainLayout = QVBoxLayout(self)
+        self.setLayout(mainLayout)
         
         print(f"Item count is: {rows}")
         print(f"Column count is: {col}")
@@ -69,35 +72,87 @@ class MyTableWidget(QWidget):
         self.table.resizeColumnsToContents()
         self.table.resizeRowsToContents()
 
-        #add table to layout
-        layout.addWidget(self.table)
+        #create a button
+        button1 = QPushButton()
+        button1.clicked.connect(self.button1_clicked)
+        button1.setText("Load")
 
-        print("table visible?", self.table.isVisible())
+        button2 = QPushButton()
+        button2.clicked.connect(self.button2_clicked)
+        button2.setText("Save")
+        
+        buttonLayout = QHBoxLayout()
+        buttonLayout.addWidget(button1)
+        buttonLayout.addWidget(button2)
+
+        #add table to layout
+        mainLayout.addWidget(self.table)
+        mainLayout.addLayout(buttonLayout)
+
+        """ print("table visible?", self.table.isVisible())
         print("table size:", self.table.size())
         print("geometry:", self.table.geometry())
         print("layout on window:", self.layout())
+         """
         
+        #remove ability to edit table directly
+        # self.table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+
         # show the window
         self.show()
     
-    def button_clicked(self):
+    def currentButton_clicked(self):
+    #find and print item at x,y pos in table
         print("clicked!")
+        
+        print(f"item at 0,0 is {str(self.table.item(1,1))}")
+
+        currentQTableWidgetItem = self.table.currentItem()
+        print(currentQTableWidgetItem.row(), currentQTableWidgetItem.column(), currentQTableWidgetItem.text())
+    
+    def button1_clicked(self):
+        self.loadCSV("sampleData.csv")
+        QMessageBox.information(self, "Loaded", "CSV Loaded.")
+
+    def button2_clicked(self):
+        self.saveCSV("sampleData.csv")
+        QMessageBox.information(self, "Saved", "Table saved to CSV.")
     
     def loadCSV(self, fileName):
         t = 0
-        with open(fileName, "r") as fileInput:
-            for row in csv.reader(fileInput):
-                if t == 0:
-                    self.headers = row
-                    t += 1
-                    continue
-                self.items.append(list(row))
+        with open(fileName, "r", newline="", encoding="utf-8") as fileInput:
+            reader = csv.reader(fileInput)
+            rows = list(reader)
+            self.headers = rows[0]
+            self.items = rows[1:]
+
+        self.table.clear()
+        self.table.setRowCount(len(self.items))
+        self.table.setColumnCount(len(self.headers))
+        self.table.setHorizontalHeaderLabels(self.headers)
+
+        for row_index, row_data in enumerate(self.items):
+            for col_index, value in enumerate(row_data):
+                self.table.setItem(row_index, col_index, QTableWidgetItem(value))       
+    
+    def saveCSV(self, fileName):
+        with open(fileName, "w", newline="", encoding="utf-8") as fileOutput:
+            writer = csv.writer(fileOutput)
+            writer.writerow(self.headers)
+
+            for row in range(self.table.rowCount()):
+                row_data = []
+                for col in range(self.table.columnCount()):
+                    item = self.table.item(row, col)
+                    row_data.append(item.text() if item else "")
+                writer.writerow(row_data)
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
 
     # create the main window
-    window = MainWindow()
+    window = MyTableWidget()
 
     # start the event loop
     sys.exit(app.exec())
