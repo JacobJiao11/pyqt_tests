@@ -1,0 +1,28 @@
+Tasks (in order of importance)
+
+1. Dashboard
+-displays who's at a table
+-checks them in
+-staff can make notes
+
+2. Student
+-displays the database
+-lets you add students, certifications
+
+3. Tools
+-display
+-add Tools
+-change quantity
+-add or remove tags
+
+4. Tables
+-display
+-add Tables
+-add sections
+
+5. Reports
+-sorts notes on students 
+
+6. Log in
+
+7. 3d printers
