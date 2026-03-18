@@ -21,16 +21,17 @@ from PyQt6.QtWidgets import (
 import csv
 
 class MyTableWidget(QWidget):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, filename, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.filename = filename
         self.items = []
         self.headers = []
 
         #create the table
         self.table = QTableWidget(self)
 
-        self.loadCSV("sampleData.csv")
+        self.loadCSV(str(self.filename))
 
         # print(self.headers)
         rows = len(self.items)
@@ -111,11 +112,11 @@ class MyTableWidget(QWidget):
         print(currentQTableWidgetItem.row(), currentQTableWidgetItem.column(), currentQTableWidgetItem.text())
     
     def button1_clicked(self):
-        self.loadCSV("sampleData.csv")
+        self.loadCSV(self.filename)
         QMessageBox.information(self, "Loaded", "CSV Loaded.")
 
     def button2_clicked(self):
-        self.saveCSV("sampleData.csv")
+        self.saveCSV(self.filename)
         QMessageBox.information(self, "Saved", "Table saved to CSV.")
     
     def loadCSV(self, fileName):
@@ -152,7 +153,7 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
 
     # create the main window
-    window = MyTableWidget()
+    window = MyTableWidget("sampleData.csv")
 
     # start the event loop
     sys.exit(app.exec())
