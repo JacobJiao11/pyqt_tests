@@ -17,7 +17,6 @@ from PyQt6.QtWidgets import (
 )
 
 
-
 import csv
 
 class MyTableWidget(QWidget):
@@ -41,33 +40,24 @@ class MyTableWidget(QWidget):
 
         # set the window title
         self.setWindowTitle('Table test')
-        self.setGeometry(100, 100, 640, 420)    #set window size
+        self.setGeometry(100, 100, 1000, 700)    #set window size
 
         #set the layout
         mainLayout = QVBoxLayout(self)
         self.setLayout(mainLayout)
         
-        print(f"Item count is: {rows}")
-        print(f"Column count is: {col}")
+        # print(f"Item count is: {rows}")
+        # print(f"Column count is: {col}")
 
         self.table.setRowCount(rows)
         self.table.setColumnCount(col)
         
         self.table.setHorizontalHeaderLabels(self.headers)
-        toolValues = [None, None, None, None, None]
 
-
-        for i, (tool, quantity, condition, tag, location) in enumerate(self.items):
-        #grabs item no, and all quantities for that row
-            listedValues = (tool, quantity, condition, tag, location)
-            #places it in a list
-            for t in range(0,col):
-                toolValues[t] = QTableWidgetItem(listedValues[t])
-                #creates an item of each thing from said list
-
-            for z in range(0,col):
-                self.table.setItem(i, z, toolValues[z])
-                #then sets that item in the table
+        for i, row in enumerate(self.items):
+        #grabs item no. and row
+            for z, values in enumerate(row):
+                self.table.setItem(i, z, QTableWidgetItem(values))
         
         #resize to content
         self.table.resizeColumnsToContents()
@@ -148,6 +138,20 @@ class MyTableWidget(QWidget):
                     row_data.append(item.text() if item else "")
                 writer.writerow(row_data)
 
+    def addRow(self, items):
+    #helper function to add a row, and populate it
+        rowPos = self.table.rowCount()
+        self.table.insertRow(rowPos)
+        #count the rows and add a blank one
+
+        #for the items in the list of data, fill each row with that
+        for colPos, colData in enumerate(items):
+            self.table.setItem(rowPos, colPos, QTableWidgetItem(colData))
+
+    def delRow(self):
+    #function to delete entire selected row
+        currItem = self.table.currentItem()
+        self.table.removeRow(currItem.row())
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
